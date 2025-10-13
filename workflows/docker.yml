@@ -1,0 +1,30 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches: [ "main" ] # 当您向 main 分支推送代码时，触发此动作
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3 # 步骤1：拉取您的代码
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2 # 步骤2：设置 Docker 构建环境
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2 # 步骤3：登录 Docker Hub
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }} # 使用您在 GitHub 设置的 Secret
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v4 # 步骤4：构建并推送镜像！
+      with:
+        context: . # 使用当前目录作为构建上下文
+        file: ./Dockerfile # 指定 Dockerfile 的路径
+        push: true # 推送到 Docker Hub
+        tags: ${{ secrets.DOCKER_USERNAME }}/factory-proxy:latest # 您的镜像全名
